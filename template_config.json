@@ -1,0 +1,30 @@
+{
+  "black_template.pdf": {
+    "name_position": {
+      "x": 0.5,
+      "y": 0.45
+    },
+    "font_size": 45,
+    "font_color": [
+      1.0,
+      0.84,
+      0.0
+    ],
+    "font_name": "PinyonScriptRegular",
+    "text_alignment": "center"
+  },
+  "brown_floral_template.pdf": {
+    "name_position": {
+      "x": 0.5,
+      "y": 0.55
+    },
+    "font_size": 40,
+    "font_color": [
+      0.4,
+      0.2,
+      0.0
+    ],
+    "font_name": "PinyonScriptRegular",
+    "text_alignment": "center"
+  }
+}

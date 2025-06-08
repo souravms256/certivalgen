@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Certificate Generator</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .header p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+
+    .form-container {
+      padding: 40px;
+    }
+
+    .form-group {
+      margin-bottom: 30px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 15px 20px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 1rem;
+      background: #f8f9fa;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #667eea;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .templates-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 25px;
+      margin-top: 20px;
+    }
+
+    .template-card {
+      position: relative;
+      background: white;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 3px solid transparent;
+    }
+
+    .template-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .template-card.selected {
+      border-color: #667eea;
+      box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.3);
+    }
+
+    .template-preview {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .template-info {
+      padding: 20px;
+      text-align: center;
+    }
+
+    .template-name {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 10px;
+      text-transform: capitalize;
+    }
+
+    .template-radio {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      width: 20px;
+      height: 20px;
+      accent-color: #667eea;
+    }
+
+    .generate-btn {
+      width: 100%;
+      padding: 18px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 30px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .generate-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+    }
+
+    .generate-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .loading {
+      display: none;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #667eea;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 10px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    #downloadPopup {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 25px 40px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      border-radius: 15px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      z-index: 9999;
+      color: #333;
+      animation: fadein 0.5s ease;
+    }
+
+    @keyframes fadein {
+      from { opacity: 0; transform: translate(-50%, -60%); }
+      to { opacity: 1; transform: translate(-50%, -50%); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🏆 Certificate Generator</h1>
+      <p>Create professional certificates in seconds</p>
+    </div>
+
+    <div class="form-container">
+      <form method="POST" id="certificateForm">
+        <div class="form-group">
+          <label for="name">📝 Recipient Name</label>
+          <input type="text" name="name" id="name" class="form-input"
+                 placeholder="Enter the recipient's full name" required>
+        </div>
+
+        <div class="form-group">
+          <label for="template">🎨 Choose Template</label>
+          <div class="templates-grid">
+            {% for template in templates %}
+            <div class="template-card" onclick="selectTemplate('{{ template }}')">
+              <input type="radio" name="template" value="{{ template }}"
+                     class="template-radio" id="template_{{ loop.index }}">
+              <img class="template-preview"
+                   src="{{ url_for('static', filename='previews/' + template.replace('.pdf', '.png')) }}"
+                   alt="Preview of {{ template }}"
+                   onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+              <div style="display:none; padding:60px 20px; text-align:center; background:#f8f9fa; color:#999;">
+                📄 Preview Loading...
+              </div>
+              <div class="template-info">
+                <div class="template-name">{{ template.replace('.pdf', '').replace('_', ' ') }}</div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <button type="submit" class="generate-btn" id="generateBtn">
+          ✨ Generate Certificate
+        </button>
+
+        <div class="loading" id="loading">
+          <div class="spinner"></div>
+          <p>Generating your certificate, please wait...</p>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Popup -->
+  <div id="downloadPopup">🎉 Your certificate is downloading!</div>
+
+  <script>
+    function selectTemplate(templateName) {
+      document.querySelectorAll('.template-card').forEach(card => {
+        card.classList.remove('selected');
+      });
+      event.currentTarget.classList.add('selected');
+      document.querySelector(`input[value="${templateName}"]`).checked = true;
+      document.getElementById('generateBtn').disabled = false;
+    }
+
+    document.getElementById('generateBtn').disabled = true;
+
+    document.getElementById('name').addEventListener('input', function () {
+      const template = document.querySelector('input[name="template"]:checked');
+      document.getElementById('generateBtn').disabled = !(this.value.trim() && template);
+    });
+
+    document.getElementById('certificateForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const name = document.getElementById('name').value.trim();
+      const template = document.querySelector('input[name="template"]:checked');
+
+      if (!name) {
+        alert('Please enter a recipient name');
+        return;
+      }
+
+      if (!template) {
+        alert('Please select a template');
+        return;
+      }
+
+      document.getElementById('generateBtn').style.display = 'none';
+      document.getElementById('loading').style.display = 'block';
+
+      const formData = new FormData(this);
+
+      fetch('/', {
+        method: 'POST',
+        body: formData
+      })
+        .then(response => {
+          const successMessage = response.headers.get('X-Success-Message');
+          if (successMessage) alert(successMessage);
+          return response.blob();
+        })
+        .then(blob => {
+          // Show popup
+          const popup = document.getElementById('downloadPopup');
+          popup.style.display = 'block';
+          setTimeout(() => popup.style.display = 'none', 3000);
+
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = name + '_Certificate.pdf';
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        })
+        .finally(() => {
+          document.getElementById('loading').style.display = 'none';
+          document.getElementById('generateBtn').style.display = 'block';
+        });
+    });
+  </script>
+</body>
+</html>
